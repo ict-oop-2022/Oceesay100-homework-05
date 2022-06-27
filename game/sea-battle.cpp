@@ -20,18 +20,18 @@ sea_battle_t::sea_battle_t(std::shared_ptr<player_interface_t> player1, field_t 
 void sea_battle_t::play() {
   while (true) {
     // current player makes a move
-    std::pair<int, int> pos = players[current]->make_move(fields[current], hide_ships(fields[(current + 1) % 2]));
+    std::pair<int, int> loc = players[current]->make_move(fields[current], hide_ships(fields[(current + 1) % 2]));
 
     // check if move is correct
-    if (!field_t::is_cell_valid(pos.first, pos.second)) {
-      players[current]->on_incorrect_move(pos.first, pos.second);
+    if (!field_t::is_cell_valid(loc.first, loc.second)) {
+      players[current]->on_incorrect_move(loc.first, loc.second);
       continue;
     }
 
     // check if move is duplicate
-    if (fields[(current + 1) % 2][pos.first][pos.second] == field_t::MISS_CELL ||
-        fields[(current + 1) % 2][pos.first][pos.second] == field_t::HIT_CELL) {
-      players[current]->on_duplicate_move(pos.first, pos.second);
+    if (fields[(current + 1) % 2][loc.first][loc.second] == field_t::MISS_CELL ||
+        fields[(current + 1) % 2][loc.first][loc.second] == field_t::HIT_CELL) {
+      players[current]->on_duplicate_move(loc.first, loc.second);
       continue;
       
       
@@ -39,24 +39,24 @@ void sea_battle_t::play() {
     }
 
     // check if move is a hit or a kill
-    if (fields[(current + 1) % 2][pos.first][pos.second] == field_t::SHIP_CELL) {
-      fields[(current + 1) % 2][pos.first][pos.second] = field_t::HIT_CELL;
+    if (fields[(current + 1) % 2][loc.first][loc.second] == field_t::SHIP_CELL) {
+      fields[(current + 1) % 2][loc.first][loc.second] = field_t::HIT_CELL;
       // check of move is a kill
-      if (!find_attached_ship_cell(fields[(current + 1) % 2], pos.first, pos.second)) {
-        players[current]->on_kill(pos.first, pos.second);
+      if (!find_attached_ship_cell(fields[(current + 1) % 2], loc.first, loc.second)) {
+        players[current]->on_kill(loc.first, loc.second);
         // check victory
         if (!find_any_ship_cell(fields[(current + 1) % 2])) {
           break;
         }
       } else {
-        players[current]->on_hit(pos.first, pos.second);
+        players[current]->on_hit(loc.first, loc.second);
       }
       continue;
     }
 
     // if move is a miss
-    fields[(current + 1) % 2][pos.first][pos.second] = field_t::MISS_CELL;
-    players[current]->on_miss(pos.first, pos.second);
+    fields[(current + 1) % 2][loc.first][loc.second] = field_t::MISS_CELL;
+    players[current]->on_miss(loc.first, loc.second);
     current = change_turn(current);
   }
   players[current]->on_win();
