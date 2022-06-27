@@ -99,3 +99,4 @@ bool sea_battle_t::find_any_ship_cell(field_t &field) {
   }
   return false;
 }
+
